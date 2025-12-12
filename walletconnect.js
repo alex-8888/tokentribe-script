@@ -2,17 +2,12 @@ window.TokenTribeCrypto = async function (webhookUrl, projectId) {
   try {
     alert("Wallet connect modal loading...");
 
-    // Check if MetaMask or any wallet is installed
     if (typeof window.ethereum !== "undefined") {
       console.log("🦊 MetaMask detected. Connecting...");
-
-      // Request wallet accounts
       const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
       const walletAddress = accounts[0];
-
       alert("Wallet connected successfully: " + walletAddress);
 
-      // Send wallet info to Make webhook
       const response = await fetch(webhookUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -27,13 +22,11 @@ window.TokenTribeCrypto = async function (webhookUrl, projectId) {
 
       if (response.ok) {
         alert("Wallet connection logged successfully.");
-        console.log("✅ Data sent to webhook.");
       } else {
         alert("Webhook request failed: " + response.status);
-        console.error(await response.text());
       }
+
     } else {
-      // Fallback to simulated wallet
       alert("No wallet found. Simulating wallet connection...");
 
       const response = await fetch(webhookUrl, {
@@ -50,7 +43,6 @@ window.TokenTribeCrypto = async function (webhookUrl, projectId) {
 
       if (response.ok) {
         alert("Simulated wallet connection logged successfully.");
-        console.log("✅ Simulated wallet data sent to webhook.");
       } else {
         alert("Simulated webhook request failed: " + response.status);
       }
