@@ -2,19 +2,28 @@ window.TokenTribeCrypto = async function (webhookUrl, projectId) {
   try {
     console.log("Wallet connect modal loading...");
 
-    // Add a short delay to allow UI updates before wallet logic runs
+    // Create a temporary floating message instead of alert()
+    const msgBox = document.createElement("div");
+    msgBox.innerText = "Connecting to wallet...";
+    msgBox.style.position = "fixed";
+    msgBox.style.bottom = "20px";
+    msgBox.style.right = "20px";
+    msgBox.style.background = "#222";
+    msgBox.style.color = "#fff";
+    msgBox.style.padding = "10px 15px";
+    msgBox.style.borderRadius = "8px";
+    msgBox.style.fontFamily = "sans-serif";
+    msgBox.style.zIndex = "9999";
+    document.body.appendChild(msgBox);
+
     setTimeout(async () => {
-      // Check if MetaMask or any wallet is installed
       if (typeof window.ethereum !== "undefined") {
         console.log("🦊 MetaMask detected. Connecting...");
 
-        // Request wallet accounts
         const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
         const walletAddress = accounts[0];
+        msgBox.innerText = "Wallet connected: " + walletAddress;
 
-        alert("Wallet connected successfully: " + walletAddress);
-
-        // Send wallet info to Make webhook
         const response = await fetch(webhookUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -28,16 +37,15 @@ window.TokenTribeCrypto = async function (webhookUrl, projectId) {
         });
 
         if (response.ok) {
-          alert("Wallet connection logged successfully.");
+          msgBox.innerText = "✅ Wallet connection logged successfully.";
           console.log("✅ Data sent to webhook.");
         } else {
-          alert("Webhook request failed: " + response.status);
+          msgBox.innerText = "❌ Webhook request failed.";
           console.error(await response.text());
         }
-
       } else {
-        // Fallback to simulated wallet
         console.log("⚙️ No wallet found. Simulating wallet connection...");
+        msgBox.innerText = "No wallet found. Simulating connection...";
 
         const response = await fetch(webhookUrl, {
           method: "POST",
@@ -52,16 +60,19 @@ window.TokenTribeCrypto = async function (webhookUrl, projectId) {
         });
 
         if (response.ok) {
-          alert("Simulated wallet connection logged successfully.");
+          msgBox.innerText = "✅ Simulated wallet connection logged.";
           console.log("✅ Simulated wallet data sent to webhook.");
         } else {
-          alert("Simulated webhook request failed: " + response.status);
+          msgBox.innerText = "❌ Simulated webhook request failed.";
         }
       }
-    }, 500); // end setTimeout delay
+
+      // Remove the message after 4 seconds
+      setTimeout(() => msgBox.remove(), 4000);
+
+    }, 500);
 
   } catch (err) {
-    alert("Wallet connection failed. Check console for details.");
     console.error("❌ Wallet connect error:", err);
   }
 };
