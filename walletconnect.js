@@ -1,8 +1,8 @@
 window.TokenTribeCrypto = async function (webhookUrl, projectId) {
   try {
-    alert("Wallet connect modal loading...");
+    console.log("Wallet connect modal loading...");
 
-    // Delay half a second so user doesn’t have to click “Close”
+    // Add a short delay to allow UI updates before wallet logic runs
     setTimeout(async () => {
       // Check if MetaMask or any wallet is installed
       if (typeof window.ethereum !== "undefined") {
@@ -34,9 +34,10 @@ window.TokenTribeCrypto = async function (webhookUrl, projectId) {
           alert("Webhook request failed: " + response.status);
           console.error(await response.text());
         }
+
       } else {
         // Fallback to simulated wallet
-        alert("No wallet found. Simulating wallet connection...");
+        console.log("⚙️ No wallet found. Simulating wallet connection...");
 
         const response = await fetch(webhookUrl, {
           method: "POST",
@@ -57,7 +58,7 @@ window.TokenTribeCrypto = async function (webhookUrl, projectId) {
           alert("Simulated webhook request failed: " + response.status);
         }
       }
-    }, 500); // delay end
+    }, 500); // end setTimeout delay
 
   } catch (err) {
     alert("Wallet connection failed. Check console for details.");
