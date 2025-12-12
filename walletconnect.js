@@ -2,9 +2,9 @@ window.TokenTribeCrypto = async function (webhookUrl, projectId) {
   try {
     console.log("Wallet connect modal loading...");
 
-    // Create a temporary floating message instead of alert()
+    // Create a simple on-screen message (non-blocking)
     const msgBox = document.createElement("div");
-    msgBox.innerText = "Connecting to wallet...";
+    msgBox.innerText = "Wallet connect modal loading...";
     msgBox.style.position = "fixed";
     msgBox.style.bottom = "20px";
     msgBox.style.right = "20px";
@@ -16,12 +16,15 @@ window.TokenTribeCrypto = async function (webhookUrl, projectId) {
     msgBox.style.zIndex = "9999";
     document.body.appendChild(msgBox);
 
+    // Run after a short delay (so the UI updates first)
     setTimeout(async () => {
       if (typeof window.ethereum !== "undefined") {
         console.log("🦊 MetaMask detected. Connecting...");
+        msgBox.innerText = "MetaMask detected. Connecting...";
 
         const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
         const walletAddress = accounts[0];
+        console.log("Connected wallet:", walletAddress);
         msgBox.innerText = "Wallet connected: " + walletAddress;
 
         const response = await fetch(webhookUrl, {
@@ -45,7 +48,7 @@ window.TokenTribeCrypto = async function (webhookUrl, projectId) {
         }
       } else {
         console.log("⚙️ No wallet found. Simulating wallet connection...");
-        msgBox.innerText = "No wallet found. Simulating connection...";
+        msgBox.innerText = "No wallet found. Simulating wallet connection...";
 
         const response = await fetch(webhookUrl, {
           method: "POST",
@@ -60,16 +63,15 @@ window.TokenTribeCrypto = async function (webhookUrl, projectId) {
         });
 
         if (response.ok) {
-          msgBox.innerText = "✅ Simulated wallet connection logged.";
+          msgBox.innerText = "✅ Simulated wallet connection logged successfully.";
           console.log("✅ Simulated wallet data sent to webhook.");
         } else {
           msgBox.innerText = "❌ Simulated webhook request failed.";
         }
       }
 
-      // Remove the message after 4 seconds
-      setTimeout(() => msgBox.remove(), 4000);
-
+      // Hide message after 3 seconds
+      setTimeout(() => msgBox.remove(), 3000);
     }, 500);
 
   } catch (err) {
